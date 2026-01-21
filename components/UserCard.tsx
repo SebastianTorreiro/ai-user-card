@@ -3,12 +3,21 @@ interface UserProps {
   email: string;
   city: string;
   company: string;
+  image: string;
 }
 
-export function UserCard({ name, email, city, company }: UserProps) {
+export function UserCard({ name, email, city, company, image }: UserProps) {
   return (
     <section className="flex w-full justify-center items-center p-4">
       <div className="flex flex-col items-center justify-center w-full max-w-md rounded-3xl bg-indigo-600 text-white shadow-[8px_4px_4px_black] overflow-hidden">
+        <div className="h-64 w-full overflow-hidden relative">
+          <img
+            src={image}
+            alt={`Avatar de ${name}`}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
+        </div>
         <DataRow label="Nombre" value={name} />
         <Separator />
 
