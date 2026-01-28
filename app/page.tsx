@@ -3,6 +3,7 @@ import { UserCard } from "@/components/UserCard";
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
+import { supabase } from "@/lib/supabase";
 
 const userSchema = z.object({
   name: z.string().describe("Nombre completo del personaje"),
@@ -12,7 +13,7 @@ const userSchema = z.object({
   visualDescription: z
     .string()
     .describe(
-      "Descripción física visual del personaje para generar una imagen. En Inglés. Ej: 'A cyberpunk warrior with glowing armor'"
+      "Descripción física visual del personaje para generar una imagen. En Inglés. Ej: 'A cyberpunk warrior with glowing armor'",
     ),
 });
 
@@ -43,25 +44,62 @@ async function generateUserProfile(role: string): Promise<UserProfile> {
   }
 }
 
+async function getCharacterFromDB(id: string) {
+  const { data, error } = await supabase
+    .from("characters")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) {
+    console.error("Error DB:", error);
+    return null;
+  }
+
+  // Adaptamos los datos de la DB al formato que usa tu componente
+  return {
+    name: data.name,
+    email: "db_saved@personaje.com", // Dato fake porque no lo guardamos en DB
+    city: data.city || "Unknown",
+    company: data.company || "Free Agent",
+    visualDescription: data.description,
+    image: data.image_url, // ¡Importante! La DB ya tiene la URL lista
+  };
+}
+
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ role?: string }>;
+  searchParams: Promise<{ role?: string; id?: string }>;
 }) {
   const params = await searchParams;
-  const currentRole = params?.role || "Jardinero que quiere ser Dev";
+  const { role, id } = params || { role: "Jardinero que quiere ser Dev", id: undefined };
+let characterData; 
 
-  const user: UserProfile = await generateUserProfile(currentRole);
+  if (id) {
+    const dbUser = await getCharacterFromDB(id);
+    if (dbUser) {
+      characterData = dbUser;
+    }
+  }
 
-  const imageUrl = `/api/image?prompt=${encodeURIComponent(
-    user.visualDescription
-  )}`;
-  console.log(imageUrl);
+  if (!characterData) {
+    const roleToGenerate = role || "Jardinero Que Quiere Ser Dev"; 
+    const aiUser = await generateUserProfile(roleToGenerate);
+    
+    const generatedImage = `/api/image?prompt=${encodeURIComponent(aiUser.visualDescription)}`;
+    
+    // Unificamos el objeto
+    characterData = {
+      ...aiUser,
+      image: generatedImage
+    };
+  }
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-900 p-4 font-sans">
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 capitalize">
-          {currentRole}
+          {role}
         </h1>
         <p className="text-slate-400 mt-2">Perfil generado por IA</p>
       </div>
@@ -69,11 +107,11 @@ export default async function Home({
       <SearchForm />
 
       <UserCard
-        name={user.name}
-        email={user.email}
-        city={user.city}
-        company={user.company}
-        image={imageUrl}
+        name={characterData.name}
+        email={characterData.email}
+        city={characterData.city}
+        company={characterData.company}
+        image={characterData.image}
       />
     </div>
   );

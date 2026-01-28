@@ -61,5 +61,5 @@ export async function createCharacterAction(formData: FormData) {
   console.log("Personaje Guardado ID:", data.id);
   
   // 4. Redirección (Temporalmente al home con una flag)
-//   redirect(`/?saved=true&id=${data.id}`);
+  redirect(`/?saved=true&id=${data.id}`);
 }
