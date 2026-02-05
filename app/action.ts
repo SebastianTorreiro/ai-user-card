@@ -24,7 +24,7 @@ export async function createCharacterAction(formData: FormData) {
   let user;
   try {
     const result = await generateObject({
-      model: google("gemini-1.5-flash"), 
+      model: google("gemini-2.5-flash"), 
       schema: userSchema,
       prompt: `Genera un perfil de usuario para: ${role}. VisualDescription en inglés detallado.`,
     });
@@ -34,10 +34,8 @@ export async function createCharacterAction(formData: FormData) {
     throw new Error("Falló la generación de IA");
   }
 
-  // 2. Definir URL de Imagen (Usando tu Proxy local)
   const imageUrl = `/api/image?prompt=${encodeURIComponent(user.visualDescription)}`;
 
-  // 3. Guardar en Supabase
   const { data, error } = await supabase
     .from("characters")
     .insert([
@@ -60,6 +58,5 @@ export async function createCharacterAction(formData: FormData) {
 
   console.log("Personaje Guardado ID:", data.id);
   
-  // 4. Redirección (Temporalmente al home con una flag)
   redirect(`/?saved=true&id=${data.id}`);
 }

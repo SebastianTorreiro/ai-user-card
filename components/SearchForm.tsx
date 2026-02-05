@@ -1,31 +1,25 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { createCharacterAction } from "@/app/action";
+import { useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 
 export function SearchForm() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const [isPending, startTransition] = useTransition();
 
   const initialRole = searchParams.get("role") || "";
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const role = formData.get("roleInput") as string;
-
-    if (role.trim()) {
-      startTransition(() => {
-        router.push(`/?role=${encodeURIComponent(role.trim())}`);
-      });
-    }
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-md mb-8 flex gap-2">
+    <form // Envolvemos la llamada en startTransition para que isPending se active
+      action={(formData) => {
+        startTransition(() => {
+          createCharacterAction(formData);
+        });
+      }}
+      className="w-full max-w-md mb-8 flex gap-2"
+    >
       <input
         name="roleInput"
         defaultValue={initialRole}
@@ -41,12 +35,12 @@ export function SearchForm() {
 
       <button
         type="submit"
-        disabled={isPending} 
+        disabled={isPending}
         className={`font-medium px-6 py-2 rounded-lg transition-colors text-white
           ${
             isPending
-              ? "bg-slate-600 cursor-wait" 
-              : "bg-blue-600 hover:bg-blue-700" 
+              ? "bg-slate-600 cursor-wait"
+              : "bg-blue-600 hover:bg-blue-700"
           }
         `}
       >
