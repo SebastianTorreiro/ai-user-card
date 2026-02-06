@@ -4,9 +4,8 @@ import { redirect } from "next/navigation";
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { supabase } from "@/lib/supabase"; // El alias @ suele apuntar a la raíz si no usas src
+import { supabase } from "@/lib/supabase"; 
 
-// Reutilizamos el esquema para consistencia
 const userSchema = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -58,5 +57,5 @@ export async function createCharacterAction(formData: FormData) {
 
   console.log("Personaje Guardado ID:", data.id);
   
-  redirect(`/?saved=true&id=${data.id}`);
+  redirect(`/character/${data.id}`);
 }

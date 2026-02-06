@@ -1,9 +1,9 @@
 import { SearchForm } from "@/components/SearchForm";
 import { UserCard } from "@/components/UserCard";
+import { getCharacterFromDB } from "@/lib/data";
 import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
-import { supabase } from "@/lib/supabase";
 
 const userSchema = z.object({
   name: z.string().describe("Nombre completo del personaje"),
@@ -44,57 +44,29 @@ async function generateUserProfile(role: string): Promise<UserProfile> {
   }
 }
 
-async function getCharacterFromDB(id: string) {
-  const { data, error } = await supabase
-    .from("characters")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error || !data) {
-    console.error("Error DB:", error);
-    return null;
-  }
-
-  // Adaptamos los datos de la DB al formato que usa tu componente
-  return {
-    name: data.name,
-    email: "db_saved@personaje.com", // Dato fake porque no lo guardamos en DB
-    city: data.city || "Unknown",
-    company: data.company || "Free Agent",
-    visualDescription: data.description,
-    image: data.image_url, // ¡Importante! La DB ya tiene la URL lista
-  };
-}
-
 export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<{ role?: string; id?: string }>;
 }) {
   const params = await searchParams;
-  const { role, id } = params || { role: "Jardinero que quiere ser Dev", id: undefined };
-let characterData; 
+  const { role, id } = params;
+  let characterData;
 
   if (id) {
     const dbUser = await getCharacterFromDB(id);
     if (dbUser) {
       characterData = dbUser;
     }
-  }
-
-  if (!characterData) {
-    const roleToGenerate = role || "Jardinero Que Quiere Ser Dev"; 
-    const aiUser = await generateUserProfile(roleToGenerate);
-    
+  } else if (role) {
+    const aiUser = await generateUserProfile(role);
     const generatedImage = `/api/image?prompt=${encodeURIComponent(aiUser.visualDescription)}`;
-    
-    // Unificamos el objeto
     characterData = {
       ...aiUser,
-      image: generatedImage
+      image: generatedImage,
     };
   }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-900 p-4 font-sans">
       <div className="mb-8 text-center">
@@ -105,15 +77,15 @@ let characterData;
       </div>
 
       <SearchForm />
-
-      <UserCard
-        name={characterData.name}
-        email={characterData.email}
-        city={characterData.city}
-        company={characterData.company}
-        image={characterData.image}
-      />
+      {characterData && (
+        <UserCard
+          name={characterData.name}
+          email={characterData.email}
+          city={characterData.city}
+          company={characterData.company}
+          image={characterData.image}
+        />
+      )}
     </div>
   );
 }
-
