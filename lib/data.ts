@@ -22,3 +22,18 @@ export async function getCharacterFromDB(id: string) {
     role: data.role,
   };
 }
+
+export async function getLatestCharacters() {
+  const { data, error } = await supabase
+    .from("characters")
+    .select("id, name, role, image_url") 
+    .order("created_at", { ascending: false }) 
+    .limit(3);
+
+  if (error) {
+    console.error("Error fetching latest:", error);
+    return [];
+  }
+
+  return data;
+}
