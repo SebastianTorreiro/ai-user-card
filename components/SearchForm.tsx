@@ -1,57 +1,98 @@
 "use client";
 
-import { createCharacterAction } from "@/app/action";
-import { useSearchParams } from "next/navigation";
 import { useTransition } from "react";
+import { createCharacterAction } from "@/app/action";
+// Importamos las listas oficiales del LoL desde tus schemas
+import { CLASSES, REGIONS } from "@/lib/schemas"; 
 
 export function SearchForm() {
-  const searchParams = useSearchParams();
-
   const [isPending, startTransition] = useTransition();
 
-  const initialRole = searchParams.get("role") || "";
-
   return (
-    <form
+    <form 
       action={(formData) => {
         startTransition(() => {
           createCharacterAction(formData);
         });
-      }}
-      className="w-full max-w-2xl mb-12 flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000"
+      }} 
+      className="w-full max-w-4xl bg-[#091428]/80 backdrop-blur-md border border-[#c8aa6e]/30 p-8 rounded-sm shadow-2xl mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000"
     >
-      <input
-        name="roleInput"
-        defaultValue={initialRole}
-        disabled={isPending}
-        type="text"
-        placeholder="Ej: Hechicero cyberpunk con neones..."
-        className={`flex-1 bg-slate-800/50 backdrop-blur-md border border-slate-700 text-white text-lg rounded-xl px-6 py-4 
-          focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 placeholder-slate-500 shadow-xl transition-all
-          ${isPending ? "opacity-50 cursor-not-allowed" : "hover:border-slate-600"} 
-        `}
-        autoComplete="off"
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        {/* 1. NOMBRE */}
+        <div className="md:col-span-2 space-y-2">
+          <label htmlFor="name" className="text-xs font-bold text-[#c8aa6e] uppercase tracking-widest">Nombre del Campeón</label>
+          <input
+            name="name"
+            id="name"
+            required
+            minLength={2}
+            maxLength={20}
+            type="text"
+            placeholder="Ej: Aatrox, Ahri..."
+            className="w-full bg-[#0a0a12] border border-[#1e2328] text-[#f0e6d2] text-lg px-4 py-3 focus:outline-none focus:border-[#c8aa6e] transition-colors placeholder-slate-700"
+            autoComplete="off"
+          />
+        </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className={`font-bold text-lg px-8 py-4 rounded-xl transition-all text-white shadow-lg transform active:scale-95
-          ${
-            isPending
-              ? "bg-slate-700 cursor-wait"
-              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 hover:shadow-blue-500/25"
-          }
-        `}
-      >
-        {isPending ? (
-          <span className="flex items-center gap-2">
-            ⏳ <span className="hidden sm:inline">Generando...</span>
-          </span>
-        ) : (
-          "Generar"
-        )}
-      </button>
+        {/* 2. CLASE (Select) */}
+        <div className="space-y-2">
+          <label htmlFor="class" className="text-xs font-bold text-[#c8aa6e] uppercase tracking-widest">Clase / Rol</label>
+          <select
+            name="class"
+            id="class"
+            className="w-full bg-[#0a0a12] border border-[#1e2328] text-[#f0e6d2] px-4 py-3 appearance-none focus:border-[#c8aa6e] cursor-pointer"
+          >
+            {CLASSES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* 3. REGIÓN (Select) */}
+        <div className="space-y-2">
+          <label htmlFor="region" className="text-xs font-bold text-[#c8aa6e] uppercase tracking-widest">Región de Runaterra</label>
+          <select
+            name="region"
+            id="region"
+            className="w-full bg-[#0a0a12] border border-[#1e2328] text-[#f0e6d2] px-4 py-3 appearance-none focus:border-[#c8aa6e] cursor-pointer"
+          >
+            {REGIONS.map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* 4. PROMPT EXTRA (Detalles) */}
+        <div className="md:col-span-2 space-y-2">
+          <label htmlFor="prompt" className="text-xs font-bold text-[#c8aa6e] uppercase tracking-widest">Detalles Especiales (Opcional)</label>
+          <textarea
+            name="prompt"
+            id="prompt"
+            rows={2}
+            placeholder="Ej: Usa una guadaña gigante, tiene odio por los magos..."
+            className="w-full bg-[#0a0a12] border border-[#1e2328] text-[#f0e6d2] px-4 py-3 focus:outline-none focus:border-[#c8aa6e] transition-colors placeholder-slate-700 resize-none"
+          />
+        </div>
+
+      </div>
+
+      {/* BOTÓN HEXTECH */}
+      <div className="mt-8 flex justify-center">
+        <button
+          type="submit"
+          disabled={isPending} 
+          className={`font-bold text-lg px-12 py-3 border border-[#c8aa6e] transition-all text-[#f0e6d2] uppercase tracking-widest shadow-[0_0_15px_rgba(200,170,110,0.2)]
+            ${
+              isPending
+                ? "bg-[#1e2328] cursor-wait opacity-50" 
+                : "bg-[#1e2328] hover:bg-[#c8aa6e] hover:text-[#0a0a12] hover:shadow-[0_0_25px_rgba(200,170,110,0.6)]" 
+            }
+          `}
+        >
+          {isPending ? "Invocando..." : "Crear Campeón"}
+        </button>
+      </div>
     </form>
   );
 }
