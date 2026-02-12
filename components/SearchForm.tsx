@@ -2,7 +2,6 @@
 
 import { useTransition } from "react";
 import { createCharacterAction } from "@/app/action";
-// Importamos las listas oficiales del LoL desde tus schemas
 import { CLASSES, REGIONS } from "@/lib/schemas"; 
 
 export function SearchForm() {
@@ -19,7 +18,6 @@ export function SearchForm() {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        {/* 1. NOMBRE */}
         <div className="md:col-span-2 space-y-2">
           <label htmlFor="name" className="text-xs font-bold text-[#c8aa6e] uppercase tracking-widest">Nombre del Campeón</label>
           <input
@@ -35,7 +33,6 @@ export function SearchForm() {
           />
         </div>
 
-        {/* 2. CLASE (Select) */}
         <div className="space-y-2">
           <label htmlFor="class" className="text-xs font-bold text-[#c8aa6e] uppercase tracking-widest">Clase / Rol</label>
           <select
@@ -49,7 +46,6 @@ export function SearchForm() {
           </select>
         </div>
 
-        {/* 3. REGIÓN (Select) */}
         <div className="space-y-2">
           <label htmlFor="region" className="text-xs font-bold text-[#c8aa6e] uppercase tracking-widest">Región de Runaterra</label>
           <select
@@ -63,7 +59,6 @@ export function SearchForm() {
           </select>
         </div>
 
-        {/* 4. PROMPT EXTRA (Detalles) */}
         <div className="md:col-span-2 space-y-2">
           <label htmlFor="prompt" className="text-xs font-bold text-[#c8aa6e] uppercase tracking-widest">Detalles Especiales (Opcional)</label>
           <textarea
@@ -77,7 +72,6 @@ export function SearchForm() {
 
       </div>
 
-      {/* BOTÓN HEXTECH */}
       <div className="mt-8 flex justify-center">
         <button
           type="submit"

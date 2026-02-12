@@ -69,8 +69,7 @@ import { NextResponse } from "next/server";
 //   }
 // }
 
-
-export const runtime = "edge"; 
+export const runtime = "edge";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -81,19 +80,14 @@ export async function GET(req: Request) {
   }
 
   try {
-    // 1. Limpiamos y aseguramos el prompt
-    // Cortamos a 800 caracteres por seguridad en la URL y forzamos el estilo visual
     const safePrompt = prompt.substring(0, 800);
-    const styleSufix = ", league of legends splash art, masterwork, high quality digital art";
-    
-    // 2. Construimos la URL hacia la API libre de Pollinations AI
+    const styleSufix =
+      ", league of legends splash art, masterwork, high quality digital art";
+
     const encodedPrompt = encodeURIComponent(safePrompt + styleSufix);
     const externalUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=800&nologo=true`;
 
-    // 3. Redirigimos directamente a la imagen. 
-    // Tu componente <Image unoptimized /> en el frontend seguirá este enlace automáticamente.
     return NextResponse.redirect(externalUrl);
-
   } catch (error) {
     console.error("Redirect Error:", error);
     return new NextResponse("Error routing image", { status: 500 });
